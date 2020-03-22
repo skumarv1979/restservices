@@ -1,6 +1,5 @@
 package com.omrtb.restservices.controller;
 
-import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -24,12 +23,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -348,6 +344,7 @@ public class UnAuthenticatedOpsController {
 		            
 		            try {
 		            	User usr = userRepository.save(user);
+		            	LOGGER.error("inserted user "+usr.getEmail());
 		            }
 		            catch(Exception e) {
 		            	LOGGER.error("Unable to insert user "+user);

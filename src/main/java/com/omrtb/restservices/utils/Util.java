@@ -11,11 +11,15 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Date;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.omrtb.restservices.entity.model.User;
 import com.opencsv.CSVReader;
 
 public class Util {
 	public static ZoneId zoneId = ZoneId.of( "Asia/Kolkata" );        //Zone information
+	private static Logger LOGGER = LogManager.getLogger(Util.class);
 	public static ZonedDateTime convertLocalDateToZonedDate(LocalDateTime localDate) {
 		 
 		 
@@ -90,7 +94,7 @@ public class Util {
 	        	int i = 0;
 	        	rec++;
 	            for (String cell : nextRecord) {
-	                //System.out.print(cell + ",");
+	                LOGGER.info(cell + ",");
 	                i++;
 	            }
 	            if(rec!=1 && nextRecord.length==24) {
