@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 import com.omrtb.restservices.entity.model.Events;
+import com.omrtb.restservices.entity.model.User;
 
 public class ResponseEvent implements Serializable {
     /**
@@ -71,6 +72,19 @@ public class ResponseEvent implements Serializable {
 		this.isRegistered = isRegistered;
 	}
     
+	@Override
+	public int hashCode() {
+		return id.hashCode();
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if(obj!=null && obj instanceof User) {
+			User u = (User)obj;
+			return this.getId().equals(u.getId());
+		}
+		return super.equals(obj);
+	}
 	public void copyEventEntityToRepsonse(Events event, boolean isRegistered) {
 		this.setId(event.getId());
 		this.setName(event.getName());

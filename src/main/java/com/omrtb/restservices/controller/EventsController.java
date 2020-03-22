@@ -6,10 +6,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -50,42 +52,52 @@ public class EventsController {
 	private UserRepository userRepository;
 
 	@GetMapping("/listallopenevents")
+	@Transactional
 	public ResponseEntity<List<ResponseEvent>> findAllOpenEvents(@AuthenticationPrincipal PdfUserDetails pdfUser) {
-		List<Events> events = eventsRepository.findAllOpenEvents();
 		User user = pdfUser.getUser();
-		Set<Events> userEvents = user.getEvents();
+		List<Events> events = eventsRepository.findAllOpenEventsOfUser(user.getId());
 		List<ResponseEvent> responseEvents = new ArrayList<ResponseEvent>();
-
 		for (Events event : events) {
-			ResponseEvent respEvent = new ResponseEvent();
-			respEvent.copyEventEntityToRepsonse(event, (userEvents!=null && userEvents.contains(event)));
-			responseEvents.add(respEvent);
+			Optional<ResponseEvent> optRespEvnt = responseEvents.stream().filter(x -> event.getId().equals(x.getId())).findAny();
+			if(!optRespEvnt.isPresent()) {
+				ResponseEvent respEvent = new ResponseEvent();
+				Hibernate.initialize(event.getUsers());
+				Set<User> usrs = event.getUsers();
+				respEvent.copyEventEntityToRepsonse(event, (usrs!=null && usrs.contains(user)));
+				responseEvents.add(respEvent);
+			}
 		}
 		return ResponseEntity.ok(responseEvents);
 	}
 
 	@PostMapping(("/register/id/{id}"))
+	@Transactional
 	public ResponseEntity<ReturnResult> registerById(@AuthenticationPrincipal PdfUserDetails pdfUser, @PathVariable Long id) {
 		User user = pdfUser.getUser();
 		ResponseEntity<ReturnResult> resp = null;
 		Optional<Events> eventsOp = eventsRepository.findById(id);
+		Optional<User> optionalUser =  userRepository.findUniqueUserByEmail(user.getEmail());
+		user = optionalUser.get();
+		Hibernate.initialize(user.getEvents());
 		Set<Events> usersEvents = user.getEvents();
+		Events events =  eventsOp.get();
 		if (!eventsOp.isPresent()) {
 			LOGGER.error("Event Id " + id + " is not existed");
 			resp = ResponseEntity.badRequest().body(new ReturnResult("Event Id " + id + " is not existed"));
 		}
-		else if(usersEvents!=null && usersEvents.contains(eventsOp.get())) {
+		else if(usersEvents!=null && usersEvents.contains(events)) {
 			LOGGER.error("Already registered for the event");
 			resp = ResponseEntity.badRequest().body(new ReturnResult("Already registered for the event"));
 		}
 		else {
-			Events events = eventsOp.get();
-			Set<Events> usrEvents = user.getEvents();
-			if(usrEvents==null) {
-				usrEvents = new HashSet<Events>();
-				user.setEvents(usrEvents);
+			//Events events = eventsOp.get();
+			Hibernate.initialize(events.getUsers());
+			//Set<Events> usrEvents = user.getEvents();
+			if(usersEvents==null) {
+				usersEvents = new HashSet<Events>();
+				user.setEvents(usersEvents);
 			}
-			usrEvents.add(events);
+			usersEvents.add(events);
 			Set<User> eventSubsUsers = events.getUsers();
 			if(eventSubsUsers==null) {
 				eventSubsUsers = new HashSet<User>();
