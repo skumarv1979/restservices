@@ -1,0 +1,1 @@
+package com.omrtb.restservices.entity.model;
