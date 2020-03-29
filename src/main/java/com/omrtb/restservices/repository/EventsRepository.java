@@ -14,7 +14,7 @@ public interface EventsRepository extends CrudRepository<Events, Long> {
     @Query("FROM Events WHERE status = 'Open' order by start_date desc")
     List<Events> findAllOpenEvents();
 
-    @Query("FROM Events e left join e.users u WHERE e.status = 'Open' AND (u is null or u.id=?1) order by start_date desc")
+    @Query("FROM Events e left join e.users u WHERE e.status = 'Open' order by start_date desc")
     List<Events> findAllOpenEventsOfUser(Long id);
 
     @Query("FROM Events WHERE name = ?1 and status='Open' order by start_date desc")

@@ -55,17 +55,20 @@ public class EventsController {
 	@Transactional
 	public ResponseEntity<List<ResponseEvent>> findAllOpenEvents(@AuthenticationPrincipal PdfUserDetails pdfUser) {
 		User user = pdfUser.getUser();
-		List<Events> events = eventsRepository.findAllOpenEventsOfUser(user.getId());
+		List<Events> events = eventsRepository.findAllOpenEvents();
 		List<ResponseEvent> responseEvents = new ArrayList<ResponseEvent>();
+		Optional<User> optionalUser =  userRepository.findUniqueUserByEmail(user.getEmail());
+		user = optionalUser.get();
+		Hibernate.initialize(user.getEvents());
+		Set<Events> usrEvnts = user.getEvents();
 		for (Events event : events) {
-			Optional<ResponseEvent> optRespEvnt = responseEvents.stream().filter(x -> event.getId().equals(x.getId())).findAny();
-			if(!optRespEvnt.isPresent()) {
+			//Optional<ResponseEvent> optRespEvnt = responseEvents.stream().filter(x -> event.getId().equals(x.getId())).findAny();
+			//if(!optRespEvnt.isPresent()) {
 				ResponseEvent respEvent = new ResponseEvent();
-				Hibernate.initialize(event.getUsers());
-				Set<User> usrs = event.getUsers();
-				respEvent.copyEventEntityToRepsonse(event, (usrs!=null && usrs.contains(user)));
+				//Hibernate.initialize(event.getUsers());
+				respEvent.copyEventEntityToRepsonse(event, (usrEvnts!=null && usrEvnts.contains(event)));
 				responseEvents.add(respEvent);
-			}
+			//}
 		}
 		return ResponseEntity.ok(responseEvents);
 	}
@@ -115,6 +118,9 @@ public class EventsController {
 		User user = pdfUser.getUser();
 		ResponseEntity<ReturnResult> resp = null;
 		List<Events> events = eventsRepository.findByName(name);
+		Optional<User> optionalUser =  userRepository.findUniqueUserByEmail(user.getEmail());
+		user = optionalUser.get();
+		Hibernate.initialize(user.getEvents());
 		Set<Events> usersEvents = user.getEvents();
 		if (events == null || events.isEmpty()) {
 			LOGGER.error("Event Name " + name + " is not existed");
@@ -130,6 +136,7 @@ public class EventsController {
 		}
 		else {
 			Events event = events.get(0);
+			Hibernate.initialize(event.getUsers());
 			Set<Events> usrEvents = user.getEvents();
 			if(usrEvents==null) {
 				usrEvents = new HashSet<Events>();
