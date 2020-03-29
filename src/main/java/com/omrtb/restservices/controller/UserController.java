@@ -354,7 +354,7 @@ public class UserController {
 		User entity = null;
 		Long count = stravaUserRepository.findAthlete(strUsr.getUser().getId(), strUsr.getAtheleteId());
 		StravaUser stravaUser = null;
-		count = 0l;
+		//count = 0l;
 		LOGGER.error("Is the strava user exists :: "+count);
 		if(count==null || count.equals(0l)) {
 			entity = userRepository.save(user);
