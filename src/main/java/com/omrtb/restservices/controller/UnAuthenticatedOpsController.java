@@ -289,7 +289,7 @@ public class UnAuthenticatedOpsController {
 	@Autowired
 	private RoleRepository roleRepository;
 	
-	@GetMapping("/contactus")
+	//@GetMapping("/contactus")
 	public ResponseEntity<ReturnResult> contactus(@Valid @RequestBody ContactUs contactUs) {
 		SimpleMailMessage mail = constructContactUsEmail(contactUs);
 		

@@ -18,6 +18,7 @@ import javax.validation.Valid;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -146,6 +147,9 @@ public class UserController {
 	public ResponseEntity<Activity> manualEntry(@AuthenticationPrincipal PdfUserDetails pdfUser,  
 	  @RequestParam("date") @DateTimeFormat(pattern = "dd-MM-yyyy") String strDate) {
 		User user = pdfUser.getUser();
+		Optional<User> optionalUser =  userRepository.findUniqueUserByEmail(user.getEmail());
+		user = optionalUser.get();
+		Hibernate.initialize(user.getActivities());
 		//DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 		//DateTimeFormatter dateTimeFormat = DateTimeFormatter.BASIC_ISO_DATE;
 		//LocalDateTime date = formatter.parse(strDate, LocalDateTime::from);
@@ -208,6 +212,9 @@ public class UserController {
 	public ResponseEntity<ReturnResult> manualEntry(@AuthenticationPrincipal PdfUserDetails pdfUser, @Valid @RequestBody ReqActivity activity) {
 		User user = pdfUser.getUser();
 		//activity.setStartDate(Util.convertDateToZonedDate(activity.getStartDate()));
+		Optional<User> optionalUser =  userRepository.findUniqueUserByEmail(user.getEmail());
+		user = optionalUser.get();
+		Hibernate.initialize(user.getActivities());
 		SortedSet<Activity> activities = user.getActivities();
 		if(activities==null) {
 			activities = new TreeSet<Activity>();
@@ -251,7 +258,7 @@ public class UserController {
 			tempActivity.setStartDateLocal(Util.convertZonedDateToLocalDate(tempActivity.getStartDate()));
 			tempActivity.setUser(user);
 		}
-		tempActivity.setMovingTime(activity.getMovingTime());
+		tempActivity.setMovingTime(activity.getMovingTime()!=null?activity.getMovingTime():activity.getElapsedTime());
 		tempActivity.setElapsedTime(activity.getElapsedTime());
 		//tempActivity.setMovingTime(Util.secondsToHoursMinutesSecondsConverter(activity.getMovingTime()));
 		//tempActivity.setElapsedTime(Util.secondsToHoursMinutesSecondsConverter(activity.getElapsedTime()));
