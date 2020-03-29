@@ -51,7 +51,6 @@ import com.omrtb.restservices.request.model.ForgotPasswordEmail;
 import com.omrtb.restservices.request.model.PasswordDto;
 import com.omrtb.restservices.request.model.ReturnResult;
 import com.omrtb.restservices.utils.RoleSingleton;
-import com.omrtb.restservices.utils.StravaUtils;
 import com.opencsv.CSVReader;
 
 import lombok.RequiredArgsConstructor;
@@ -138,13 +137,6 @@ public class UnAuthenticatedOpsController {
 	public ResponseEntity<ReturnResult> userIdInUse(@PathVariable String userid) {
         Optional<User> optionalUser = userRepository.findByUserId(userid);
         return ResponseEntity.ok(new ReturnResult(Boolean.toString(optionalUser.isPresent())));
-	}
-	@Autowired
-	private StravaUtils stravaUtils;
-	@GetMapping("/pullstrava")
-	public ResponseEntity<ReturnResult> pullstrava() {
-		stravaUtils.updateStravaActivity();
-        return ResponseEntity.ok(new ReturnResult("Refer Console"));
 	}
 	
 	@PostMapping("/resetpassword")

@@ -34,6 +34,7 @@ import com.omrtb.restservices.repository.UserRepository;
 import com.omrtb.restservices.request.model.ActivateByEmailReq;
 import com.omrtb.restservices.request.model.ReturnResult;
 import com.omrtb.restservices.utils.RoleSingleton;
+import com.omrtb.restservices.utils.StravaUtils;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -168,6 +169,14 @@ public class AdminController {
 		events.setCreatedBy(pdfUser.getUser().getId());
 		Events event = eventsRepository.save(events);
 		return ResponseEntity.ok(event);
+	}
+
+	@Autowired
+	private StravaUtils stravaUtils;
+	@GetMapping("/pullstrava")
+	public ResponseEntity<ReturnResult> pullstrava() {
+		stravaUtils.updateStravaActivity();
+        return ResponseEntity.ok(new ReturnResult("Refer Console"));
 	}
 
 }
