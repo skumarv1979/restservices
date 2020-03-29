@@ -123,6 +123,9 @@ public class UserController {
 	@GetMapping("/viewprofile")
 	public ResponseEntity<User> viewProfile(@AuthenticationPrincipal PdfUserDetails pdfUser) {
 		User user = pdfUser.getUser();
+		//Optional<User> optionalUser =  userRepository.findUniqueUserByEmail(user.getEmail());
+		//user = optionalUser.get();
+		//Hibernate.initialize(user.getRoles());
 		return ResponseEntity.ok(user);
 	}
 

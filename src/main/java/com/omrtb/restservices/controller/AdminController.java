@@ -11,6 +11,7 @@ import javax.validation.Valid;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -86,12 +87,20 @@ public class AdminController {
 			RoleSingleton roleSingleton = RoleSingleton.getInstance(roleRepository);
 			Role role = roleSingleton.getRole("USER");
 			User user = userList.get(0);
+			Hibernate.initialize(user.getRoles());
 			Set<Role> roles = user.getRoles();
 			if(roles==null) {
 				roles = new HashSet<Role>();
 				user.setRoles(roles);
 			}
-			Set<User> users = role.getUsers();
+			Set<User> users = null;
+			for(Role rol : roles) {
+				if("USER".equals(rol.getName())) {
+					Hibernate.initialize(rol.getUsers());
+					users = rol.getUsers();
+				}
+			}
+			
 			if(users==null) {
 				users = new HashSet<User>();
 				role.setUsers(users);
