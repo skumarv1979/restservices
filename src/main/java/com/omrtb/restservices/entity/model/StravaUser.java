@@ -192,7 +192,8 @@ public class StravaUser implements Serializable {
 				+ ", scope=" + scope + ", error=" + error + ", refreshToken=" + refreshToken + ", accessToken="
 				+ accessToken + ", expiresIn=" + expiresIn + ", expiresAt=" + expiresAt + ", profile=" + profile
 				+ ", profileMedium=" + profileMedium + ", authorizationStatus=" + authorizationStatus + ", createdAt="
-				+ createdAt + ", updatedAt=" + updatedAt + ", user=" + user + "]";
+				+ createdAt + ", updatedAt=" + updatedAt //+ ", user=" + user 
+				+ "]";
 	}
 	
 }

@@ -20,11 +20,12 @@ public class RoleSingleton {
         	synchronized (RoleSingleton.class) {
         		if(instance==null) {
         			instance = new RoleSingleton();
-        			Iterable<Role> rolesItr = roleRepository.findAll();
+        			//instance.initializeRoles(roleRepository);
+        			Iterable<Role> rolesItr = roleRepository.findWithoutNPlusOne();
         			if(rolesItr!=null) {
-	        			for (Role role : rolesItr) {
-	        				map.put(role.getName(), role);
-						}
+        				for (Role role : rolesItr) {
+        					map.put(role.getName(), role);
+        				}
         			}
         		}
         	}
@@ -32,7 +33,19 @@ public class RoleSingleton {
         return instance;
     }
     
+    public static void initializeRoles(RoleRepository roleRepository) {
+		Iterable<Role> rolesItr = roleRepository.findWithoutNPlusOne();
+		if(rolesItr!=null) {
+			for (Role role : rolesItr) {
+				map.put(role.getName(), role);
+			}
+		}
+    }
+    
     public Role getRole(String name) {
 		return map.get(name);
+	}
+    public Map<String, Role> getRoleMap() {
+		return map;
 	}
 }

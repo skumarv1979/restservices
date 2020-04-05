@@ -390,8 +390,9 @@ public class User implements Serializable {
 		return "User [id=" + id + ", name=" + name + ", address=" + address + ", pincode=" + pincode + ", mobile="
 				+ mobile + ", email=" + email + ", bloodgroup=" + bloodgroup + ", dob=" + dob + ", gender=" + gender
 				+ ", tshirt=" + tshirt + ", venue=" + venue + ", cycling=" + cycling + ", status=" + status 
-				+ ", stravaUser=" + stravaUser + ", managedBy=" + managedBy + ", password=" + password
-				+ ", confirmPassword=" + confirmPassword + ", events=" + events + ", activities=" + activities
+				//+ ", stravaUser=" + stravaUser 
+				+ ", managedBy=" + managedBy + ", password=" + password
+				//+ ", confirmPassword=" + confirmPassword + ", events=" + events + ", activities=" + activities
 				+ ", createdAt=" + createdAt + ", updatedAt=" + updatedAt + "]";
 	}
 

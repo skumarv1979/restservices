@@ -93,13 +93,13 @@ public class AdminController {
 				roles = new HashSet<Role>();
 				user.setRoles(roles);
 			}
-			Set<User> users = null;
-			for(Role rol : roles) {
+			Set<User> users = role.getUsers();
+			/*for(Role rol : roles) {
 				if("USER".equals(rol.getName())) {
 					Hibernate.initialize(rol.getUsers());
 					users = rol.getUsers();
 				}
-			}
+			}*/
 			
 			if(users==null) {
 				users = new HashSet<User>();

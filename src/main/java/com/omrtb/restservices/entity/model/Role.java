@@ -74,4 +74,10 @@ public class Role {
 		}
 		return false;
 	}
+	
+	@Override
+	public String toString() {
+		return "Role [id=" + id + ", name=" + name + "]";
+	}
+	
 }
