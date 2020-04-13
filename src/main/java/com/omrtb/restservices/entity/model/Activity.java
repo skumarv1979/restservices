@@ -300,5 +300,15 @@ public class Activity implements Serializable, Comparable<Activity> {
 	public int compareTo(Activity o) {
 		return o.getStartDate().compareTo(this.getStartDate());
 	}
+
+	@Override
+	public String toString() {
+		return "Activity [id=" + id + ", sourceData=" + sourceData + ", activityId=" + activityId + ", startDate="
+				+ startDate + ", startDateLocal=" + startDateLocal + ", timezone=" + timezone + ", type=" + type
+				+ ", movingTime=" + movingTime + ", elapsedTime=" + elapsedTime + ", distance=" + distance
+				+ ", totalElevationGain=" + totalElevationGain + ", commute=" + commute + ", manual=" + manual
+				+ ", calories=" + calories + ", activityType=" + activityType + ", workoutName=" + workoutName
+				+ ", workoutType=" + workoutType + ", createdAt=" + createdAt + ", updatedAt=" + updatedAt + "]";
+	}
     
 }

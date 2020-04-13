@@ -245,7 +245,7 @@ public class UnAuthenticatedOpsController {
 		Optional<PasswordResetToken> optionalPassToken = passwordResetTokenRepository.findByToken(passwordDto.getToken());
 		if (optionalPassToken.isPresent()) {
 			PasswordResetToken passToken = optionalPassToken.get();
-			if (passToken.getId() != passwordDto.getId()) {
+			if (passToken.getId()!=null && !passToken.getId().equals(passwordDto.getId())) {
 				return ResponseEntity.ok(new ReturnResult("invalidToken"));
 			}
 			Calendar cal = Calendar.getInstance();

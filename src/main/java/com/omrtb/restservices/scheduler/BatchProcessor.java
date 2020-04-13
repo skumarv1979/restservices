@@ -31,7 +31,7 @@ public class BatchProcessor {
 	private static Logger LOGGER = LogManager.getLogger(BatchProcessor.class);
 
 	//@Scheduled(fixedRate = 10000)//(cron = "0 * 9 * * ?")  //*/10 * * * * *   //0 0 */2 * * *
-	@Scheduled(cron = "0 0 */1 * * *",zone = "Asia/Kolkata")
+	@Scheduled(cron = "0 0 */8 * * *",zone = "Asia/Kolkata")
 	@Transactional
 	public void cronJobSch() {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
