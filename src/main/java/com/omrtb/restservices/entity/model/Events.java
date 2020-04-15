@@ -2,6 +2,7 @@ package com.omrtb.restservices.entity.model;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.Access;
@@ -15,6 +16,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotEmpty;
@@ -77,10 +79,17 @@ public class Events implements Serializable {
     , inverseJoinColumns={@JoinColumn(referencedColumnName="ID")})
 	@JsonIgnoreProperties("events")
     private Set<Activity> activities;
+    
+    @OneToMany(
+            mappedBy = "events",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+        )
+        private Set<UserEventsRegistration> userEventsRegistration = new HashSet<UserEventsRegistration>();
 
-    @ManyToMany(mappedBy="events")
+    /*@ManyToMany(mappedBy="events")
 	@JsonIgnoreProperties("events")
-    private Set<User> users;
+    private Set<User> users;*/
 
 	public Long getId() {
 		return id;
@@ -126,14 +135,6 @@ public class Events implements Serializable {
 		this.status = status;
 	}
 
-	public Set<User> getUsers() {
-		return users;
-	}
-
-	public void setUsers(Set<User> users) {
-		this.users = users;
-	}
-
 	public Long getCreatedBy() {
 		return createdBy;
 	}
@@ -166,6 +167,22 @@ public class Events implements Serializable {
 		this.updatedAt = updatedAt;
 	}
     
+	public Set<Activity> getActivities() {
+		return activities;
+	}
+
+	public void setActivities(Set<Activity> activities) {
+		this.activities = activities;
+	}
+
+	public Set<UserEventsRegistration> getUserEventsRegistration() {
+		return userEventsRegistration;
+	}
+
+	public void setUserEventsRegistration(Set<UserEventsRegistration> userEventsRegistration) {
+		this.userEventsRegistration = userEventsRegistration;
+	}
+
 	@Override
 	public int hashCode() {
 		return id.hashCode();

@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.omrtb.restservices.entity.model.Events;
 import com.omrtb.restservices.entity.model.User;
+import com.omrtb.restservices.entity.model.UserEventsRegistration;
 import com.omrtb.restservices.repository.EventsRepository;
 import com.omrtb.restservices.repository.UserRepository;
 import com.omrtb.restservices.request.model.ResponseEvent;
@@ -59,14 +60,17 @@ public class EventsController {
 		List<ResponseEvent> responseEvents = new ArrayList<ResponseEvent>();
 		Optional<User> optionalUser =  userRepository.findUniqueUserByEmail(user.getEmail());
 		user = optionalUser.get();
-		Hibernate.initialize(user.getEvents());
-		Set<Events> usrEvnts = user.getEvents();
+		Hibernate.initialize(user.getUserEventsRegistration());
+		Set<UserEventsRegistration> usrEvnts = user.getUserEventsRegistration();
 		for (Events event : events) {
 			//Optional<ResponseEvent> optRespEvnt = responseEvents.stream().filter(x -> event.getId().equals(x.getId())).findAny();
 			//if(!optRespEvnt.isPresent()) {
 				ResponseEvent respEvent = new ResponseEvent();
 				//Hibernate.initialize(event.getUsers());
-				respEvent.copyEventEntityToRepsonse(event, (usrEvnts!=null && usrEvnts.contains(event)));
+				Optional<UserEventsRegistration> optionalUserEvents = usrEvnts.stream()                // convert list to stream
+                .filter(usrEvnt -> usrEvnt.getEvents().equals(event))     // we dont like mkyong
+                .findAny();
+				respEvent.copyEventEntityToRepsonse(event, optionalUserEvents.isPresent());
 				responseEvents.add(respEvent);
 			//}
 		}
@@ -81,39 +85,46 @@ public class EventsController {
 		Optional<Events> eventsOp = eventsRepository.findById(id);
 		Optional<User> optionalUser =  userRepository.findUniqueUserByEmail(user.getEmail());
 		user = optionalUser.get();
-		Hibernate.initialize(user.getEvents());
-		Set<Events> usersEvents = user.getEvents();
-		Events events =  eventsOp.get();
+		Hibernate.initialize(user.getUserEventsRegistration());
+		Set<UserEventsRegistration> usersEvents = user.getUserEventsRegistration();
 		if (!eventsOp.isPresent()) {
 			LOGGER.error("Event Id " + id + " is not existed");
 			resp = ResponseEntity.badRequest().body(new ReturnResult("Event Id " + id + " is not existed"));
+			return resp;
 		}
-		else if(usersEvents!=null && usersEvents.contains(events)) {
+		Events events =  eventsOp.get();
+		if(usersEvents!=null && usersEvents.stream()
+                .filter(usrEvnt -> usrEvnt.getEvents().equals(events))
+                .findAny().isPresent()) {
 			LOGGER.error("Already registered for the event");
 			resp = ResponseEntity.badRequest().body(new ReturnResult("Already registered for the event"));
 		}
 		else {
 			//Events events = eventsOp.get();
-			Hibernate.initialize(events.getUsers());
-			//Set<Events> usrEvents = user.getEvents();
+			Hibernate.initialize(events.getUserEventsRegistration());
 			if(usersEvents==null) {
-				usersEvents = new HashSet<Events>();
-				user.setEvents(usersEvents);
+				usersEvents = new HashSet<UserEventsRegistration>();
+				user.setUserEventsRegistration(usersEvents);
 			}
-			usersEvents.add(events);
-			Set<User> eventSubsUsers = events.getUsers();
+			//Set<Events> usrEvents = user.getEvents();
+			UserEventsRegistration usrEvntsReg = new UserEventsRegistration(user, events);
+			usersEvents.add(usrEvntsReg);
+			/*Set<UserEventsRegistration> eventSubsUsers = events.getUserEventsRegistration();
 			if(eventSubsUsers==null) {
-				eventSubsUsers = new HashSet<User>();
-				events.setUsers(eventSubsUsers);
-			}
-			eventSubsUsers.add(user);
+				eventSubsUsers = new HashSet<UserEventsRegistration>();
+				events.setUserEventsRegistration(eventSubsUsers);
+			}*/
+			/*usrEvntsReg = new UserEventsRegistration();
+			usrEvntsReg.setEvents(events);
+			usrEvntsReg.setUser(user);*/
+			//eventSubsUsers.add(usrEvntsReg);
 			userRepository.save(user);
 			resp = ResponseEntity.ok(new ReturnResult("Succesfully registered"));
 		}
 		return resp;
 	}
 
-	@PostMapping(("/register/name/{name}"))
+	/*@PostMapping(("/register/name/{name}"))
 	public ResponseEntity<ReturnResult> registerByName(@AuthenticationPrincipal PdfUserDetails pdfUser, @PathVariable String name) {
 		User user = pdfUser.getUser();
 		ResponseEntity<ReturnResult> resp = null;
@@ -153,7 +164,7 @@ public class EventsController {
 			resp = ResponseEntity.ok(new ReturnResult("Succesfully registered"));
 		}
 		return resp;
-	}
+	}*/
 
 	@PostMapping("/{id}")
 	public ResponseEntity<Events> update(@PathVariable Long id, @Valid @RequestBody Events events) {

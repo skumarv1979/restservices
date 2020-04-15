@@ -3,6 +3,7 @@ package com.omrtb.restservices.entity.model;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -126,12 +127,19 @@ public class User implements Serializable {
     //@JsonIgnore
     private StravaUser stravaUser;
     
-    @ManyToMany(cascade=CascadeType.ALL, fetch = FetchType.LAZY)
+    /*@ManyToMany(cascade=CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(name="USER_EVENTS_REGISTRATION", joinColumns={@JoinColumn(referencedColumnName="ID")}
     , inverseJoinColumns={@JoinColumn(referencedColumnName="ID")})
 	@JsonIgnoreProperties("users")
     //@JsonIgnore
-    private Set<Events> events;
+    private Set<Events> events;*/
+    
+    @OneToMany(
+            mappedBy = "users",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+        )
+        private Set<UserEventsRegistration> userEventsRegistration = new HashSet<UserEventsRegistration>();
 
     @OneToMany(cascade=CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name="USER_ID")
@@ -337,15 +345,6 @@ public class User implements Serializable {
 		this.managedBy = managedBy;
 	}
 
-	public Set<Events> getEvents() {
-		return events;
-	}
-
-	public void setEvents(Set<Events> events) {
-		this.events = events;
-	}
-
-	
 	public String getApprovedBy() {
 		return approvedBy;
 	}
@@ -368,6 +367,14 @@ public class User implements Serializable {
 
     public void setPasswordResetToken(PasswordResetToken passwordResetToken) {
 		this.passwordResetToken = passwordResetToken;
+	}
+
+	public Set<UserEventsRegistration> getUserEventsRegistration() {
+		return userEventsRegistration;
+	}
+
+	public void setUserEventsRegistration(Set<UserEventsRegistration> userEventsRegistration) {
+		this.userEventsRegistration = userEventsRegistration;
 	}
 
 	@Override
