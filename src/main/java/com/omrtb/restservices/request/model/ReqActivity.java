@@ -10,6 +10,7 @@ import javax.validation.constraints.Pattern.Flag;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.omrtb.restservices.validations.ActivityTypeValidation;
+import com.omrtb.restservices.validations.ValidateActivityDate;
 
 public class ReqActivity implements Serializable {
 
@@ -25,6 +26,7 @@ public class ReqActivity implements Serializable {
     private long activityId;
     
 	@NotNull(message = "Please provide Date")
+	@ValidateActivityDate(message = "Activity date should be in past 7 days")
     private Date startDate;
     
     private Float distance;

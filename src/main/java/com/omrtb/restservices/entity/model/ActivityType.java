@@ -1,6 +1,13 @@
 package com.omrtb.restservices.entity.model;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -36,7 +43,8 @@ public enum ActivityType {
 	WINDSURFING(27, "Windsurfing"),
 	WORKOUT(28, "Workout"),
 	YOGA(29, "Yoga"),
-	REST(30, "Rest Day");
+	REST(30, "Rest Day"),
+	OTHER(31, "Others");
 	
 	private int value;
 	private String desc;
@@ -56,6 +64,9 @@ public enum ActivityType {
     public static ActivityType getByKey(Integer type) {
         return lookupByKey.get(type);
     }
+    public static String getAllActivityType() {
+        return String.join(", ", activityTypeList);
+    }
     @Override
     public String toString() {
     	// TODO Auto-generated method stub
@@ -63,10 +74,28 @@ public enum ActivityType {
     }
 	private static final Map<String, ActivityType> lookup = new HashMap<String, ActivityType>();
 	private static final Map<Integer, ActivityType> lookupByKey = new HashMap<Integer, ActivityType>();
+	private static final List<String> activityTypeList = new ArrayList<String>();
     static {
         for (ActivityType d : ActivityType.values()) {
             lookup.put(d.getDesc(), d);
             lookupByKey.put(d.getValue(), d);
+            activityTypeList.add(d.getDesc());
         }
     }
+    public static void main(String[] args) {
+    	DateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+    	Date value = null;
+		try {
+			value = sdf.parse("08/04/2020");
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+ 	   Calendar c=Calendar.getInstance();
+ 	   c.setTime(new Date());
+ 	   c.add(Calendar.DATE,-7);
+       boolean flag = (value!=null && !value.after(new Date()) && !value.before(c.getTime()));
+       System.out.println("Date in last 7 days :: "+flag);
+		System.out.println(getAllActivityType());
+	}
 }
