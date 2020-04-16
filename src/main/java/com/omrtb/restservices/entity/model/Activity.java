@@ -60,12 +60,12 @@ public class Activity implements Serializable, Comparable<Activity> {
     private String type;
     
     //@Column(name = "moving_time", columnDefinition = "INT(8)")
-    //@Convert(converter = SecondsToHoursMinutesSecondsConverter.class)
-    private Integer movingTime;
+    @Convert(converter = SecondsToHoursMinutesSecondsConverter.class)
+    private String movingTime;
     
     //@Column(name = "elapsed_time", columnDefinition = "INT(8)")
-    //@Convert(converter = SecondsToHoursMinutesSecondsConverter.class)
-    private Integer elapsedTime;
+    @Convert(converter = SecondsToHoursMinutesSecondsConverter.class)
+    private String elapsedTime;
     
     private Float distance;
     
@@ -158,19 +158,19 @@ public class Activity implements Serializable, Comparable<Activity> {
 		this.type = type;
 	}
 
-	public Integer getMovingTime() {
+	public String getMovingTime() {
 		return movingTime;
 	}
 
-	public void setMovingTime(Integer movingTime) {
+	public void setMovingTime(String movingTime) {
 		this.movingTime = movingTime;
 	}
 
-	public Integer getElapsedTime() {
+	public String getElapsedTime() {
 		return elapsedTime;
 	}
 
-	public void setElapsedTime(Integer elapsedTime) {
+	public void setElapsedTime(String elapsedTime) {
 		this.elapsedTime = elapsedTime;
 	}
 

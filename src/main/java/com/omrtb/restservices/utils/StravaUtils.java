@@ -167,10 +167,10 @@ public class StravaUtils {
 			activity.setStartDate(stravaActivity.getStartDate());
 			activity.setDistance(stravaActivity.getDistance());
 			activity.setCalories(stravaActivity.getCalories());
-			activity.setMovingTime(stravaActivity.getMovingTime());
-			activity.setElapsedTime(stravaActivity.getElapsedTime());
-			//activity.setMovingTime(Util.secondsToHoursMinutesSecondsConverter(stravaActivity.getMovingTime()));
-			//activity.setElapsedTime(Util.secondsToHoursMinutesSecondsConverter(stravaActivity.getElapsedTime()));
+			//activity.setMovingTime(stravaActivity.getMovingTime());
+			//activity.setElapsedTime(stravaActivity.getElapsedTime());
+			activity.setMovingTime(Util.secondsToHoursMinutesSecondsConverter(stravaActivity.getMovingTime()));
+			activity.setElapsedTime(Util.secondsToHoursMinutesSecondsConverter(stravaActivity.getElapsedTime()));
 			activity.setManual(stravaActivity.getManual());
 			activity.setStartDate(stravaActivity.getStartDate());
 			activity.setStartDateLocal(stravaActivity.getStartDateLocal());
