@@ -33,7 +33,7 @@ public class ReqActivity implements Serializable {
     
     private String movingTime;
 
-    @Pattern(regexp = "([01]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]", flags = Flag.UNICODE_CASE, message = "Please provide elapsed time on 24:59:59 format")
+    @Pattern(regexp = "([01]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]", flags = Flag.UNICODE_CASE, message = "Please provide elapsed time in hh:mm:ss format for ex 24:59:59")
     private String elapsedTime;
     
     private String workoutName;

@@ -11,7 +11,7 @@ import javax.validation.Payload;
 
 @Target({ ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = MyDateValidator.class)
+@Constraint(validatedBy = MyActivityDateValidator.class)
 @Documented
 public @interface ValidateActivityDate {
 
