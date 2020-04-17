@@ -22,7 +22,7 @@ public class ReqActivity implements Serializable {
 	@JsonIgnore
 	private String sourceData;
 	
-	@JsonIgnore
+	//@JsonIgnore
     private long activityId;
     
 	@NotNull(message = "Please provide Date")

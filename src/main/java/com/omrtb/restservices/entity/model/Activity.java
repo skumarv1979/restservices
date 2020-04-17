@@ -47,7 +47,7 @@ public class Activity implements Serializable, Comparable<Activity> {
 	@JsonIgnore
 	private String sourceData;
 	
-	@JsonIgnore
+	//@JsonIgnore
     private Long activityId;
     
     private ZonedDateTime startDate;
@@ -87,7 +87,8 @@ public class Activity implements Serializable, Comparable<Activity> {
     @Override
     public int hashCode() {
     	// TODO Auto-generated method stub
-    	return (sourceData+activityId).hashCode();
+    	int hash = (sourceData+(activityId==null?1:activityId.hashCode())+startDate).hashCode();
+    	return hash;
     }
     
     @Override
@@ -96,10 +97,12 @@ public class Activity implements Serializable, Comparable<Activity> {
     	if(obj !=null && obj instanceof Activity) {
     		Activity acti = (Activity)obj;
     		if(SourceActivity.STRAVA.getDesc().equals(this.sourceData)) {
-    			return this.sourceData.equals(acti.getSourceData()) && this.activityId.equals(acti.getActivityId());
+    			boolean isEqual = this.sourceData.equals(acti.getSourceData()) && this.activityId.equals(acti.getActivityId());
+    			return isEqual;
     		}
     		else {
-    			return this.sourceData.equals(acti.getSourceData()) && this.startDate.equals(acti.getStartDate());
+    			boolean isEqual = this.sourceData.equals(acti.getSourceData()) && this.startDate.equals(acti.getStartDate()) && this.activityId.equals(acti.getActivityId());
+    			return isEqual;
     		}
     	}
     	return false;
@@ -298,6 +301,12 @@ public class Activity implements Serializable, Comparable<Activity> {
 
 	@Override
 	public int compareTo(Activity o) {
+		if(o.getStartDate().compareTo(this.getStartDate())==0) {
+			if(o.getActivityId()!=null && this.getActivityId()!=null) {
+				return o.getActivityId().compareTo(this.getActivityId());
+			}
+			return 0;
+		}
 		return o.getStartDate().compareTo(this.getStartDate());
 	}
 

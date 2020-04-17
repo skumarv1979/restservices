@@ -7,12 +7,14 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
@@ -42,6 +44,7 @@ import com.omrtb.restservices.entity.model.User;
 import com.omrtb.restservices.repository.ActivityRepository;
 import com.omrtb.restservices.repository.StravaUserRepository;
 import com.omrtb.restservices.repository.UserRepository;
+import com.omrtb.restservices.request.model.MultipleActivities;
 import com.omrtb.restservices.request.model.ReqActivity;
 import com.omrtb.restservices.request.model.ReturnResult;
 import com.omrtb.restservices.request.model.UpdateUser;
@@ -147,7 +150,7 @@ public class UserController {
 	}
 
 	@GetMapping("/activity")
-	public ResponseEntity<Activity> manualEntry(@AuthenticationPrincipal PdfUserDetails pdfUser,  
+	public ResponseEntity<List<Activity>> manualEntry(@AuthenticationPrincipal PdfUserDetails pdfUser,  
 	  @RequestParam("date") @DateTimeFormat(pattern = "dd-MM-yyyy") String strDate) {
 		User user = pdfUser.getUser();
 		Optional<User> optionalUser =  userRepository.findUniqueUserByEmail(user.getEmail());
@@ -175,10 +178,10 @@ public class UserController {
 		}
 		
 		Set<Activity> activities = user.getActivities();
-		Activity activity = null;
 		final Date date = dt;
+		List<Activity> filterTheDaysActivity = null;
 		if(activities!=null) {
-			Optional<Activity> matchingObject = activities.stream()
+			filterTheDaysActivity = activities.stream()
 												.filter(a -> { 
 													String srcData = a.getSourceData();
 													ZonedDateTime zoneDate = a.getStartDate();
@@ -195,7 +198,7 @@ public class UserController {
 													} catch (ParseException e) {
 														e.printStackTrace();
 													}
-													LOGGER.info("zonedZn :: "+zonedZn+", inputZn :: "+inputZn+", "+zonedZn.equals(inputZn)+", Date compare :: "+zonedDt.equals(inputDt));
+													LOGGER.error("zonedZn :: "+zonedZn+", inputZn :: "+inputZn+", "+zonedZn.equals(inputZn)+", Date compare :: "+zonedDt.equals(inputDt)+", zonedDt :: "+zonedDt+", inputDt :: "+inputDt);
 													//LOGGER.info("zoneDate :: "+zoneDate+", inputZoneDate :: "+parsed);
 													//LOGGER.info("Date Compare :: "+zoneDate.equals(parsed));
 													//LOGGER.info("Source data Compare :: "+SourceActivity.OMRTB.getDesc().equals(srcData));
@@ -203,12 +206,18 @@ public class UserController {
 																&& zonedDt.equals(inputDt));
 												}
 														)
-												.findFirst();
-			if(matchingObject.isPresent()) {
-				activity = matchingObject.get();
+												.collect(Collectors.toList());
+												//.findFirst()
+												;
+			if(filterTheDaysActivity==null) {
+				//activity = matchingObject.get();
+				filterTheDaysActivity = new ArrayList<Activity>();
+			}
+			else {
+				LOGGER.error("filter list size :: "+filterTheDaysActivity.size());
 			}
 		}
-		return ResponseEntity.ok(activity);
+		return ResponseEntity.ok(filterTheDaysActivity);
 	}
 
 	@PostMapping("/activity/manual")
@@ -219,9 +228,56 @@ public class UserController {
 		user = optionalUser.get();
 		Hibernate.initialize(user.getActivities());
 		SortedSet<Activity> activities = user.getActivities();
+		return individualManualEntry(user, activities, activity);
+	}
+	
+	@PostMapping("/activity/multiplemanual")
+	public ResponseEntity<ReturnResult> manualMultipleEntry(@AuthenticationPrincipal PdfUserDetails pdfUser, @Valid @RequestBody MultipleActivities reqActivities) {
+		User user = pdfUser.getUser();
+		//activity.setStartDate(Util.convertDateToZonedDate(activity.getStartDate()));
+		Optional<User> optionalUser =  userRepository.findUniqueUserByEmail(user.getEmail());
+		user = optionalUser.get();
+		Hibernate.initialize(user.getActivities());
+		SortedSet<Activity> activities = user.getActivities();
+		List<ReqActivity>  reqActivityList = reqActivities.getReqActivities();
+		if(reqActivityList!=null) {
+			for (ReqActivity reqActivity : reqActivityList) {
+				updateIndividualManualEntry(user, activities, reqActivity);
+			}
+		}
+		User entity = userRepository.save(user);
+		ResponseEntity<ReturnResult> response = null;
+		if(entity!=null) {
+			response = ResponseEntity.ok(new ReturnResult("Success"));
+		}
+		else {
+			response = ResponseEntity.ok(new ReturnResult("Fail"));
+		}
+		return response;
+	}
+
+	private ResponseEntity<ReturnResult> individualManualEntry(User user, SortedSet<Activity> activities, ReqActivity activity) {
+		updateIndividualManualEntry(user, activities, activity);
+		User entity = userRepository.save(user);
+		ResponseEntity<ReturnResult> response = null;
+		if(entity!=null) {
+			response = ResponseEntity.ok(new ReturnResult("Success"));
+		}
+		else {
+			response = ResponseEntity.ok(new ReturnResult("Fail"));
+		}
+		return response;
+	}
+
+	private void updateIndividualManualEntry(User user, SortedSet<Activity> activities, ReqActivity activity) {
+		long activityNo = 0;
 		if(activities==null) {
 			activities = new TreeSet<Activity>();
 			user.setActivities(activities);
+			activityNo = 1;
+		}
+		else {
+			activityNo = activities.size()+1;
 		}
 		Optional<Activity> matchingObject = activities.stream()
 												.filter(a -> {
@@ -241,13 +297,17 @@ public class UserController {
 													} catch (ParseException e) {
 														e.printStackTrace();
 													}
-													LOGGER.info("zonedZn :: "+zonedZn+", inputZn :: "+inputZn+", "+zonedZn.equals(inputZn)+", Date compare :: "+zonedDt.equals(inputDt));
+													LOGGER.error("zonedZn :: "+zonedZn+", inputZn :: "+inputZn+", "+zonedZn.equals(inputZn)+", Date compare :: "+zonedDt.equals(inputDt)+", source :: "+a.getActivityId()+", dest :: "+activity.getActivityId());
 													//LOGGER.info("zoneDate :: "+df.format(zonedDt)+", inputDate :: "+df.format(inputDt));
 													//LOGGER.info("Date Compare :: "+zoneDate.equals(inputZoneDate));
 													//LOGGER.info("Source data Compare :: "+SourceActivity.OMRTB.getDesc().equals(srcData));
 													return (SourceActivity.OMRTB.getDesc().equals(srcData) 
-																&& zonedDt.equals(inputDt));
-												}).findFirst();
+																&& zonedDt.equals(inputDt) 
+																&& a.getActivityId().equals(activity.getActivityId())
+																);
+												})
+												.findFirst()
+												;
 		Activity tempActivity;
 		if(matchingObject.isPresent()) {
 			LOGGER.info("Activity matches - just update");
@@ -257,6 +317,7 @@ public class UserController {
 			LOGGER.info("No Activity - just insert");
 			tempActivity = new Activity();
 			tempActivity.setSourceData(SourceActivity.OMRTB.getDesc());
+			tempActivity.setActivityId(activityNo);
 			tempActivity.setStartDate(Util.convertDateToZonedDate(activity.getStartDate()));
 			tempActivity.setStartDateLocal(Util.convertZonedDateToLocalDate(tempActivity.getStartDate()));
 			tempActivity.setUser(user);
@@ -271,17 +332,9 @@ public class UserController {
 		tempActivity.setWorkoutType(activity.getWorkoutType());
 		tempActivity.setActivityType(ActivityType.get(activity.getActivityType()));
 		activities.add(tempActivity);
-		User entity = userRepository.save(user);
-		ResponseEntity<ReturnResult> response = null;
-		if(entity!=null) {
-			response = ResponseEntity.ok(new ReturnResult("Success"));
-		}
-		else {
-			response = ResponseEntity.ok(new ReturnResult("Fail"));
-		}
-		return response;
-	}
 
+	}
+	
 	@PostMapping("/stravapost")
 	public ResponseEntity<User> updateStrava(@AuthenticationPrincipal PdfUserDetails pdfUser, @RequestBody StravaUser stravaUser) {
 		User user = pdfUser.getUser();
