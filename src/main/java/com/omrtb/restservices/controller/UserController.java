@@ -46,6 +46,7 @@ import com.omrtb.restservices.repository.StravaUserRepository;
 import com.omrtb.restservices.repository.UserRepository;
 import com.omrtb.restservices.request.model.MultipleActivities;
 import com.omrtb.restservices.request.model.ReqActivity;
+import com.omrtb.restservices.request.model.ResponseActivities;
 import com.omrtb.restservices.request.model.ReturnResult;
 import com.omrtb.restservices.request.model.UpdateUser;
 import com.omrtb.restservices.utils.StravaUtils;
@@ -463,16 +464,21 @@ public class UserController {
 	private ActivityRepository activityRepository;
 
 	@GetMapping("/listallactivities")
-	public ResponseEntity<List<Activity>> listAllUserActivities(@AuthenticationPrincipal PdfUserDetails pdfUser) {
+	public ResponseEntity<ResponseActivities> listAllUserActivities(@AuthenticationPrincipal PdfUserDetails pdfUser) {
 		User user = pdfUser.getUser();
 		//Optional<User> optionalUser = userRepository.findUniqueUserByEmail(user.getEmail());
 		//if(optionalUser.isPresent()) {
 		//	user = optionalUser.get();
 		//}
 		List<Activity> activities = activityRepository.listUserActivities(user.getId());
+		ResponseActivities responseAcitivities = new ResponseActivities();
+		responseAcitivities.setNoOfDaysDone(0);
+		responseAcitivities.setNoOfActualDaysPast(0);
+		responseAcitivities.setTotalNoOfActivityDays(100);
+		responseAcitivities.setActivities(activities);
 		for (Activity activity : activities) {
 			LOGGER.error(activity);
 		}
-		return ResponseEntity.ok(activities);
+		return ResponseEntity.ok(responseAcitivities);
 	}
 }
