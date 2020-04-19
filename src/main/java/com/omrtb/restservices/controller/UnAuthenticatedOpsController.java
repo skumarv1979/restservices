@@ -21,6 +21,7 @@ import javax.validation.Valid;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -37,12 +38,17 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.omrtb.restservices.RestservicesApplication;
 import com.omrtb.restservices.entity.model.Activity;
+import com.omrtb.restservices.entity.model.Events;
 import com.omrtb.restservices.entity.model.PasswordResetToken;
+import com.omrtb.restservices.entity.model.RegisteredUsersUseless;
 import com.omrtb.restservices.entity.model.Role;
 import com.omrtb.restservices.entity.model.StravaUser;
 import com.omrtb.restservices.entity.model.User;
+import com.omrtb.restservices.entity.model.UserEventsRegistration;
 import com.omrtb.restservices.entity.model.UserStatus;
+import com.omrtb.restservices.repository.EventsRepository;
 import com.omrtb.restservices.repository.PasswordResetTokenRepository;
+import com.omrtb.restservices.repository.RegisteredUsersUselessRepository;
 import com.omrtb.restservices.repository.RoleRepository;
 import com.omrtb.restservices.repository.UserRepository;
 import com.omrtb.restservices.request.model.ChangePasswordResponse;
@@ -363,7 +369,68 @@ public class UnAuthenticatedOpsController {
 		}
 		return ResponseEntity.ok().body(new ReturnResult("Activated"));
 	}
-	
+
+	public ResponseEntity<ReturnResult> activateRegisteredMigratedUsers(@PathVariable Long id) {
+		List<User> userList = userRepository.findMigratedUsers(id);
+		for (User user : userList) {
+			activateUser(user);
+		}
+		return ResponseEntity.ok().body(new ReturnResult("Activated"));
+	}
+	@Autowired
+	private EventsRepository eventsRepository;
+
+	public ResponseEntity<ReturnResult> registerMigratedUsers(@PathVariable Long id) {
+		ResponseEntity<ReturnResult> resp = null;
+		Optional<Events> eventsOp = eventsRepository.findById(id);
+		if (!eventsOp.isPresent()) {
+			LOGGER.error("Event Id " + id + " is not existed");
+			resp = ResponseEntity.badRequest().body(new ReturnResult("Event Id " + id + " is not existed"));
+			return resp;
+		}
+		Events events =  eventsOp.get();
+		
+		List<RegisteredUsersUseless> reg = registeredUsersUselessRepository.getAllUsers();
+		for (RegisteredUsersUseless registeredUsersUseless : reg) {
+			Optional<User> optionalUser =  userRepository.findUniqueUserByEmail(registeredUsersUseless.getAttendeeEmail());
+			if(optionalUser.isPresent()) {
+				User user = optionalUser.get();
+				Hibernate.initialize(user.getUserEventsRegistration());
+				Set<UserEventsRegistration> usersEvents = user.getUserEventsRegistration();
+				if(usersEvents!=null && usersEvents.stream()
+		                .filter(usrEvnt -> usrEvnt.getEvents().equals(events))
+		                .findAny().isPresent()) {
+					LOGGER.error("Already registered for the event");
+					//resp = ResponseEntity.badRequest().body(new ReturnResult("Already registered for the event"));
+				}
+				else {
+					//Events events = eventsOp.get();
+					Hibernate.initialize(events.getUserEventsRegistration());
+					if(usersEvents==null) {
+						usersEvents = new HashSet<UserEventsRegistration>();
+						user.setUserEventsRegistration(usersEvents);
+					}
+					//Set<Events> usrEvents = user.getEvents();
+					UserEventsRegistration usrEvntsReg = new UserEventsRegistration(user, events);
+					usersEvents.add(usrEvntsReg);
+					/*Set<UserEventsRegistration> eventSubsUsers = events.getUserEventsRegistration();
+					if(eventSubsUsers==null) {
+						eventSubsUsers = new HashSet<UserEventsRegistration>();
+						events.setUserEventsRegistration(eventSubsUsers);
+					}*/
+					/*usrEvntsReg = new UserEventsRegistration();
+					usrEvntsReg.setEvents(events);
+					usrEvntsReg.setUser(user);*/
+					//eventSubsUsers.add(usrEvntsReg);
+					userRepository.save(user);
+					resp = ResponseEntity.ok(new ReturnResult("Succesfully registered"));
+				}
+			}
+		}
+		
+		return resp;
+	}
+
 	private User activateUser(User user) {
 			RoleSingleton roleSingleton = RoleSingleton.getInstance(roleRepository);
 			Role role = roleSingleton.getRole("USER");
@@ -385,7 +452,6 @@ public class UnAuthenticatedOpsController {
 			return usr;
 	}
 
-	@GetMapping("/listallactivities/{id}")
 	public ResponseEntity<Set<Activity>> listAllUserActivities(@PathVariable Long id) {
 		User user = null;
 		//Optional<User> optionalUser = userRepository.findUniqueUserByEmail(user.getEmail());
@@ -400,4 +466,97 @@ public class UnAuthenticatedOpsController {
 		return ResponseEntity.ok(activities);
 	}
 
+	@Autowired
+	RegisteredUsersUselessRepository registeredUsersUselessRepository;
+	
+	public ResponseEntity<ReturnResult> updateRegisteredUsers() {
+		try {
+			//InputStream inputStream = resource.getInputStream();
+	        String fileName = "CROMRTB_100days_Challenge_All.csv";
+	        ClassLoader classLoader = new RestservicesApplication().getClass().getClassLoader();
+	 
+			FileReader filereader = new FileReader(classLoader.getResource(fileName).getFile());
+	        CSVReader csvReader = new CSVReader(filereader);
+	        String[] nextRecord;
+	        DateFormat df = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+	  
+	        // we are going to read data line by line 
+	        int rec =0;
+	        while ((nextRecord = csvReader.readNext()) != null) {
+	        	rec++;
+	            if(rec!=1 && nextRecord.length==9) {
+	            	RegisteredUsersUseless regis = new RegisteredUsersUseless();
+	            	regis.setRegistrationId(Long.parseLong(nextRecord[0]));
+	            	regis.setAttendeeName(nextRecord[1]);
+	            	regis.setAttendeeEmail(nextRecord[2]);
+	            	regis.setRegistrationTime(new java.sql.Date(df.parse(nextRecord[3]).getTime()));
+	            	regis.setContactNumber(nextRecord[4]);
+	            	regis.setGender(nextRecord[5]);
+	            	regis.setOmrtb(nextRecord[6]);
+	            	regis.setPurchaserName(nextRecord[7]);
+	            	regis.setPurchaserEmail(nextRecord[8]);
+	            	
+	            	System.out.println(regis);
+	
+		            /////////////
+		            
+		            try {
+		            	RegisteredUsersUseless usr = registeredUsersUselessRepository.save(regis);
+		            	LOGGER.error("inserted user "+usr.getAttendeeEmail()+", "+usr.getPurchaserEmail()+","+usr.getContactNumber());
+		            }
+		            catch(Exception e) {
+		            	LOGGER.error("Unable to insert user "+regis);
+		            }
+	
+		            ///////////
+	            }
+	        }
+	        System.out.println("Total Record :: "+rec);
+	        csvReader.close();
+	        filereader.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+			LOGGER.error(e.getLocalizedMessage());
+		} catch (ParseException e1) {
+			e1.printStackTrace();
+			LOGGER.error(e1.getLocalizedMessage());
+		}
+		return ResponseEntity.ok(new ReturnResult("Imported"));
+	}
+	
+	public ResponseEntity<ReturnResult> unRegisteredUsers() {
+		List<RegisteredUsersUseless> unRegUsers = registeredUsersUselessRepository.unRegisteredUsers();
+		int cnt =0;
+		for (RegisteredUsersUseless registeredUsersUseless : unRegUsers) {
+			cnt++;
+			System.out.println(registeredUsersUseless);
+            User user = new User();
+            user.setAddress(null);
+            user.setBloodgroup(null);
+            user.setCycling(false);
+            user.setDob(null);
+            user.setEmail(registeredUsersUseless.getAttendeeEmail());
+            user.setGender(registeredUsersUseless.getGender());
+            user.setMobile(registeredUsersUseless.getContactNumber());
+            user.setName(registeredUsersUseless.getAttendeeName());
+            user.setPincode(null);
+            user.setTshirt("M");
+            user.setVenue(null);
+            /////////////
+            //activateUser(user);
+            try {
+            	User usr = userRepository.save(user);
+            	LOGGER.error("inserted user "+usr.getEmail());
+            }
+            catch(Exception e) {
+            	LOGGER.error("Unable to insert user "+user+", ",e);
+            	throw e;
+            }
+
+            ///////////
+		}
+		System.out.println(cnt);
+		return ResponseEntity.ok(new ReturnResult("unregistered users"));
+	}
+	
 }

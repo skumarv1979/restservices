@@ -25,6 +25,7 @@ import com.omrtb.restservices.entity.model.StravaUser;
 import com.omrtb.restservices.entity.model.User;
 import com.omrtb.restservices.repository.StravaUserRepository;
 import com.omrtb.restservices.repository.UserRepository;
+import com.omrtb.restservices.request.model.UserEventActivities;
 import com.omrtb.restservices.strava.MyStravaAPI;
 import com.omrtb.restservices.strava.MyStravaAuthorisationAPI;
 import com.omrtb.restservices.strava.MyStravaRefreshTokenAPI;
@@ -130,6 +131,36 @@ public class StravaUtils {
 			serviceCall(user);
 		}*/
 	}
+	
+	public void performDayEndActivity() {
+		Object[][] usersEventActivitiesArray = userRepository.getUerEventActivities();
+		UserEventActivities usersEventActivities = new UserEventActivities();
+		for (int i = 0; i < usersEventActivitiesArray.length; i++) {
+			Object[] subArray = usersEventActivitiesArray[0];
+			//for (int j = 0; j < subArray.length; j++) {
+				Object obj = usersEventActivitiesArray[i][0];
+				if(obj !=null)
+				System.out.print(obj.getClass()+", "+obj);
+				obj = usersEventActivitiesArray[i][1];
+				if(obj !=null)
+				System.out.print(", "+obj.getClass()+", "+obj);
+				obj = usersEventActivitiesArray[i][2];
+				if(obj !=null)
+				System.out.print(", "+obj.getClass()+", "+obj);
+				obj = usersEventActivitiesArray[i][3];
+				if(obj !=null)
+				System.out.print(", "+obj.getClass()+", "+obj);
+				obj = usersEventActivitiesArray[i][4];
+				if(obj !=null)
+				System.out.print(", "+obj.getClass()+", "+obj);
+				obj = usersEventActivitiesArray[i][5];
+				if(obj !=null)
+				System.out.print(", "+obj.getClass()+", "+obj);
+				System.out.println();
+			//}
+		}
+	}
+	
 	public List<StravaActivity> serviceCall(User user) {
 		LocalDateTime before = LocalDateTime.now();
 		LocalDateTime after = LocalDateTime.now().minusDays(7);

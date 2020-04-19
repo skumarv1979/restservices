@@ -45,6 +45,22 @@ public class BatchProcessor {
 		
 		
 	}
+
+	//@Scheduled(cron = "0 */5 * * * *",zone = "Asia/Kolkata")
+	@Transactional
+	public void scheduleDayEndActivity() {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+		Date now = new Date();
+		String strDate = sdf.format(now);
+		LOGGER.info("starting to sync Strava activity "+strDate);
+		stravaUtils.performDayEndActivity();
+		LOGGER.info("Syncing Strava activity done at "+sdf.format(new Date()));
+		//sendEmail();
+		//LOGGER.info("Java cron job expression:: " + strDate);
+		
+		
+	}
+
 	@Autowired
     private JavaMailSender javaMailSender;
 	
