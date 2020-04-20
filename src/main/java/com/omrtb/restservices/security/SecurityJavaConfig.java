@@ -98,9 +98,10 @@ public class SecurityJavaConfig extends WebSecurityConfigurerAdapter {
         configuration.setAllowedOrigins(rawOrigins);
         configuration.setAllowedMethods(ImmutableList.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowCredentials(true);
+        configuration.setExposedHeaders(ImmutableList.of("Set-Cookie"));
         configuration.setAllowedHeaders(ImmutableList.of("Authorization", "Cache-Control", "Content-Type",
         		"Access-Control-Allow-Headers", "Origin","Accept", "X-Requested-With", "Access-Control-Request-Method", 
-        		"Access-Control-Request-Headers"));
+        		"Access-Control-Request-Headers", "Date","Form","X-Auth-Token","Request-Id"));
         final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
