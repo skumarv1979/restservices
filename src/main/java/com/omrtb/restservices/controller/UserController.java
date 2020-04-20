@@ -464,7 +464,7 @@ public class UserController {
 	private ActivityRepository activityRepository;
 
 	@GetMapping("/listallactivities")
-	public ResponseEntity<ResponseActivities> listAllUserActivities(@AuthenticationPrincipal PdfUserDetails pdfUser) {
+	public ResponseEntity<List<Activity>> listAllUserActivities(@AuthenticationPrincipal PdfUserDetails pdfUser) {
 		User user = pdfUser.getUser();
 		//Optional<User> optionalUser = userRepository.findUniqueUserByEmail(user.getEmail());
 		//if(optionalUser.isPresent()) {
@@ -476,9 +476,10 @@ public class UserController {
 		responseAcitivities.setNoOfActualDaysPast(0);
 		responseAcitivities.setTotalNoOfActivityDays(100);
 		responseAcitivities.setActivities(activities);
-		for (Activity activity : activities) {
+		LOGGER.info("responseAcitivities :: "+responseAcitivities);
+		/*for (Activity activity : activities) {
 			LOGGER.error(activity);
-		}
-		return ResponseEntity.ok(responseAcitivities);
+		}*/
+		return ResponseEntity.ok(activities);
 	}
 }
