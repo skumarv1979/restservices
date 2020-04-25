@@ -133,7 +133,7 @@ public class StravaUtils {
 	}
 	
 	public void performDayEndActivity() {
-		Object[][] usersEventActivitiesArray = userRepository.getUerEventActivities();
+		Object[][] usersEventActivitiesArray = userRepository.getUerEventActivitiesLegacyDb();
 		UserEventActivities usersEventActivities = new UserEventActivities();
 		for (int i = 0; i < usersEventActivitiesArray.length; i++) {
 			Object[] subArray = usersEventActivitiesArray[0];

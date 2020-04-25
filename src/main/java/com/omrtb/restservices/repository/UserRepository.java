@@ -119,4 +119,134 @@ public interface UserRepository extends CrudRepository<User, Long> {
     		nativeQuery = true)
     Object[][] getUerEventActivities();
 
+    @Query(value = "SELECT u.id,\r\n" + 
+    		"       u.email,\r\n" + 
+    		"       u.PAST_DATE,\r\n" + 
+    		"       a.activity_date,\r\n" + 
+    		"       a.moving_time,\r\n" + 
+    		"       a.elapsed_time\r\n" + 
+    		"  FROM (SELECT PAST_DATE,\r\n" + 
+    		"	            id,\r\n" + 
+    		"	            email\r\n" + 
+    		"	       FROM (SELECT ROWNUMBER, \r\n" + 
+    		"	                    DATE_SUB(CURDATE(),INTERVAL ROWNUMBER-1 DAY) PAST_DATE \r\n" + 
+    		"						FROM (SELECT \r\n" + 
+    		"                                     (@row_number\\:=@row_number + 1) AS ROWNUMBER\r\n" + 
+    		"                                FROM (SELECT CROSS16X16.COL AS COL \r\n" + 
+    		"                                        FROM ( \r\n" + 
+    		"                                               SELECT 1 AS COL \r\n" + 
+    		"                                                 FROM   (\r\n" + 
+    		"												            ( \r\n" + 
+    		"                                                               ( \r\n" + 
+    		"                                                                 SELECT 1 AS COL \r\n" + 
+    		"                                                                   FROM   (\r\n" + 
+    		"																             ( \r\n" + 
+    		"                                                                                ( \r\n" + 
+    		"                                                                                     SELECT 1 AS COL \r\n" + 
+    		"                                                                                       FROM   (\r\n" + 
+    		"																					             ( \r\n" + 
+    		"                                                                                                    (SELECT 1 AS COL) \r\n" + 
+    		"                                                                                                      UNION ALL \r\n" + 
+    		"                                                                                                     SELECT 1 AS COL) P1 \r\n" + 
+    		"                                                                                                  JOIN \r\n" + 
+    		"                                                                                                 ( \r\n" + 
+    		"                                                                                                    SELECT 1 AS COL \r\n" + 
+    		"                                                                                                     UNION ALL \r\n" + 
+    		"                                                                                                    SELECT 1 AS COL) P2\r\n" + 
+    		"																							  )\r\n" + 
+    		"																				)\r\n" + 
+    		"																		     ) C21 \r\n" + 
+    		"                                                                             JOIN \r\n" + 
+    		"                                                                             ( \r\n" + 
+    		"                                                                                 SELECT 1 AS COL \r\n" + 
+    		"                                                                                   FROM \r\n" + 
+    		"																				         (\r\n" + 
+    		"																						     ( \r\n" + 
+    		"                                                                                                    (SELECT 1 AS COL) \r\n" + 
+    		"                                                                                                      UNION ALL \r\n" + 
+    		"                                                                                                     SELECT 1 AS COL) P1 \r\n" + 
+    		"                                                                                                   JOIN \r\n" + 
+    		"                                                                                                  ( \r\n" + 
+    		"                                                                                                     SELECT 1 AS COL \r\n" + 
+    		"                                                                                                      UNION ALL \r\n" + 
+    		"                                                                                                     SELECT 1 AS COL\r\n" + 
+    		"																								  ) P2\r\n" + 
+    		"																						 )\r\n" + 
+    		"																			 ) C22\r\n" + 
+    		"																		  )\r\n" + 
+    		"															   )\r\n" + 
+    		"															) C41\r\n" + 
+    		"                                                            JOIN \r\n" + 
+    		"                                                            ( \r\n" + 
+    		"                                                              SELECT 1 AS COL \r\n" + 
+    		"                                                                FROM (\r\n" + 
+    		"																         ( \r\n" + 
+    		"                                                                             ( \r\n" + 
+    		"                                                                              SELECT 1 AS COL \r\n" + 
+    		"                                                                                FROM \r\n" + 
+    		"																				    (\r\n" + 
+    		"																					   ( \r\n" + 
+    		"                                                                                          (SELECT 1 AS COL) \r\n" + 
+    		"                                                                                            UNION ALL \r\n" + 
+    		"                                                                                           SELECT 1 AS COL\r\n" + 
+    		"																					   ) P1 \r\n" + 
+    		"                                                                                    JOIN \r\n" + 
+    		"                                                                                       (SELECT 1 AS COL \r\n" + 
+    		"                                                                                         UNION ALL \r\n" + 
+    		"                                                                                        SELECT 1 AS COL\r\n" + 
+    		"																					   ) P2\r\n" + 
+    		"																					 )\r\n" + 
+    		"																	         )\r\n" + 
+    		"																		 ) C21 \r\n" + 
+    		"                                                                         JOIN \r\n" + 
+    		"                                                                         ( \r\n" + 
+    		"                                          SELECT 1 AS COL \r\n" + 
+    		"                                          FROM   (( \r\n" + 
+    		"                                                 ( \r\n" + 
+    		"                                                        SELECT 1 AS COL) \r\n" + 
+    		"                                          UNION ALL \r\n" + 
+    		"                                          SELECT 1 AS COL) P1 \r\n" + 
+    		"                                          JOIN \r\n" + 
+    		"                                                 ( \r\n" + 
+    		"                                                        SELECT 1 AS COL \r\n" + 
+    		"                                                        UNION ALL \r\n" + 
+    		"                                                        SELECT 1 AS COL) P2)\r\n" + 
+    		"														                 ) C22\r\n" + 
+    		"																     )\r\n" + 
+    		"															  ) C42\r\n" + 
+    		"														)\r\n" + 
+    		"												) CROSS16X16\r\n" + 
+    		"											) TEM,\r\n" + 
+    		"                               (SELECT @row_number\\:=0) AS t) temp2\r\n" + 
+    		"					) p, \r\n" + 
+    		"	            (SELECT u.id,\r\n" + 
+    		"	                    u.email \r\n" + 
+    		"	               FROM user u, \r\n" + 
+    		"							  user_events_registration r \r\n" + 
+    		"					  WHERE u.id = r.users_id \r\n" + 
+    		"						 AND r.events_id = 1\r\n" + 
+    		"					) us\r\n" + 
+    		"										\r\n" + 
+    		"		 ) u\r\n" + 
+    		"  LEFT OUTER JOIN (SELECT u.id,\r\n" + 
+    		"	                       u.email, \r\n" + 
+    		"                          date(a.start_date) activity_date,\r\n" + 
+    		"                          sum(a.moving_time) moving_time,\r\n" + 
+    		"                          SUM(a.elapsed_time) elapsed_time\r\n" + 
+    		"                     FROM user u\r\n" + 
+    		"                            LEFT OUTER JOIN activity a ON u.id = a.user_id \r\n" + 
+    		"                            AND date(a.start_date) >= STR_TO_DATE('01,04,2020','%d,%m,%Y'),\r\n" + 
+    		"                          user_events_registration r\r\n" + 
+    		"                    WHERE u.id = r.users_id\r\n" + 
+    		"                      AND r.events_id = 1\r\n" + 
+    		"                    GROUP BY u.id, u.email, date(a.start_date)\r\n" + 
+    		"                  ) a\r\n" + 
+    		" ON a.activity_date = u.PAST_DATE \r\n" + 
+    		" AND a.elapsed_time > 8000 \r\n" + 
+    		" AND u.id = a.id\r\n" + 
+    		" WHERE u.PAST_DATE >= STR_TO_DATE('01,04,2020','%d,%m,%Y')\r\n" + 
+    		" ORDER BY id, PAST_DATE DESC\r\n" + 
+    		"  ",
+    		nativeQuery = true)
+    Object[][] getUerEventActivitiesLegacyDb();
 }
