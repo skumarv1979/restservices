@@ -16,11 +16,35 @@ public class UserEventActivities implements Serializable {
 	
 	private Date pastDate;
 	
+	private Date eventStartDate;
+	
 	private Date activityDate;
 	
 	private Long movingTime;
 	
 	private Long elapsedTime;
+	
+	private Integer day;
+	
+	private Integer week;
+	
+	public UserEventActivities() {
+		// TODO Auto-generated constructor stub
+	}
+	
+	public UserEventActivities(Long id, String email, Date pastDate, Date eventStartDate, Date activityDate, 
+			Long movingTime, Long elapsedTime, Integer day, Integer week) {
+		this.id = id;
+		this.email = email;
+		this.pastDate = pastDate;
+		this.eventStartDate = eventStartDate;
+		this.activityDate = activityDate;
+		this.movingTime =  movingTime;
+		this.elapsedTime = elapsedTime;
+		this.day = day;
+		this.week = week;
+	}
+	
 
 	public Long getId() {
 		return id;
@@ -73,6 +97,29 @@ public class UserEventActivities implements Serializable {
 	public static long getSerialversionuid() {
 		return serialVersionUID;
 	}
-	
+
+	public Date getEventStartDate() {
+		return eventStartDate;
+	}
+
+	public void setEventStartDate(Date eventStartDate) {
+		this.eventStartDate = eventStartDate;
+	}
+
+	public Integer getDay() {
+		return day;
+	}
+
+	public void setDay(Integer day) {
+		this.day = day;
+	}
+
+	public Integer getWeek() {
+		return week;
+	}
+
+	public void setWeek(Integer week) {
+		this.week = week;
+	}
 	
 }

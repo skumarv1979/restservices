@@ -25,7 +25,7 @@ import com.omrtb.restservices.entity.model.StravaUser;
 import com.omrtb.restservices.entity.model.User;
 import com.omrtb.restservices.repository.StravaUserRepository;
 import com.omrtb.restservices.repository.UserRepository;
-import com.omrtb.restservices.request.model.UserEventActivities;
+import com.omrtb.restservices.request.model.UserEventActivitiesDto;
 import com.omrtb.restservices.strava.MyStravaAPI;
 import com.omrtb.restservices.strava.MyStravaAuthorisationAPI;
 import com.omrtb.restservices.strava.MyStravaRefreshTokenAPI;
@@ -133,11 +133,12 @@ public class StravaUtils {
 	}
 	
 	public void performDayEndActivity() {
-		Object[][] usersEventActivitiesArray = userRepository.getUerEventActivitiesLegacyDb();
-		UserEventActivities usersEventActivities = new UserEventActivities();
-		for (int i = 0; i < usersEventActivitiesArray.length; i++) {
+		List<UserEventActivitiesDto> usersEventActivitiesArray = userRepository.getUerEventActivitiesLegacyDb();
+		for (UserEventActivitiesDto userEventActivitiesDto : usersEventActivitiesArray) {
+			System.out.println(userEventActivitiesDto.getId()+", "+userEventActivitiesDto.getEmail());
+		}
+		/*for (int i = 0; i < usersEventActivitiesArray.length; i++) {
 			Object[] subArray = usersEventActivitiesArray[0];
-			//for (int j = 0; j < subArray.length; j++) {
 				Object obj = usersEventActivitiesArray[i][0];
 				if(obj !=null)
 				System.out.print(obj.getClass()+", "+obj);
@@ -157,8 +158,7 @@ public class StravaUtils {
 				if(obj !=null)
 				System.out.print(", "+obj.getClass()+", "+obj);
 				System.out.println();
-			//}
-		}
+		}*/
 	}
 	
 	public List<StravaActivity> serviceCall(User user) {
